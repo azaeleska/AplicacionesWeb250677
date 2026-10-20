@@ -1586,3 +1586,233 @@ body {
 .nota-audio { font-size:.82rem; opacity:.82; margin-top:.35rem; }
 .portada-slide { object-fit: cover; }
 @media (max-width: 700px) { .media-visible { min-height: 160px; } }
+
+
+/* =========================================
+   TRAYECTORIA EDUCATIVA
+========================================= */
+
+#educacion {
+    position: relative;
+    isolation: isolate;
+    padding: 60px 20px;
+    color: #fff;
+    background:
+        linear-gradient(rgba(4, 12, 30, 0.45),
+                        rgba(4, 12, 30, 0.65)),
+        url("../assets/images/universidad.png") center / cover no-repeat;
+    background-attachment: fixed;
+}
+
+#educacion .seccion-contenido {
+    max-width: 1150px;
+    margin: 0 auto;
+}
+
+#educacion h2 {
+    text-align: center;
+    color: #35d9f5;
+    margin-bottom: 12px;
+}
+
+#educacion .educacion-intro {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+#educacion .educacion-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+#educacion .educacion-card {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid rgba(53, 217, 245, 0.4);
+    border-radius: 16px;
+    background: rgba(13, 21, 40, 0.93);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+#educacion .educacion-card h3 {
+    color: #35d9f5;
+    margin: 0 0 10px;
+}
+
+#educacion .educacion-card h4 {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+#educacion .educacion-card ul {
+    padding-left: 20px;
+    margin: 12px 0;
+}
+
+#educacion .educacion-card li {
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+/* Fotografía y mapa en dos columnas */
+#educacion .educacion-detalles {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+    align-items: start;
+}
+
+#educacion .educacion-foto img {
+    display: block;
+    width: 100%;
+    height: 125px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(53, 217, 245, 0.35);
+}
+
+#educacion .educacion-ubicacion-mapa p {
+    margin: 0 0 8px;
+    font-size: 13px;
+}
+
+#educacion .educacion-ubicacion-mapa iframe {
+    display: block;
+    width: 100%;
+    height: 125px;
+    border: 0;
+    border-radius: 10px;
+}
+
+#educacion .educacion-ubicacion-mapa a {
+    display: inline-block;
+    margin-top: 8px;
+    color: #35d9f5;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+#educacion .educacion-ubicacion-mapa a:hover {
+    text-decoration: underline;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 768px) {
+    #educacion {
+        padding: 40px 14px;
+        background-attachment: scroll;
+    }
+
+    #educacion .educacion-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 400px) {
+    #educacion .educacion-detalles {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =====================================
+   COMPETENCIAS ADQUIRIDAS
+===================================== */
+
+#competencias {
+    padding: 70px 20px;
+    color: #f4f7ff;
+    background: rgba(5, 12, 30, 0.88);
+}
+
+#competencias .seccion-contenido {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+#competencias h2 {
+    text-align: center;
+    color: #ffffff;
+    font-size: 2.3rem;
+    margin-bottom: 25px;
+}
+
+.competencias-intro {
+    text-align: center;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.competencias-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.competencia-card {
+    padding: 24px;
+    background: rgba(18, 28, 51, 0.94);
+    border: 1px solid rgba(45, 212, 245, 0.45);
+    border-radius: 16px;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.competencia-card:hover {
+    transform: translateY(-4px);
+    border-color: #22d3ee;
+}
+
+.competencia-card h3 {
+    color: #22d3ee;
+    margin-top: 0;
+    font-size: 1.35rem;
+}
+
+.competencia-card p {
+    line-height: 1.6;
+}
+
+.btn-competencia {
+    background: #22d3ee;
+    color: #07111f;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-competencia:hover {
+    background: #67e8f9;
+}
+
+.btn-competencia:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 3px;
+}
+
+.competencia-detalle {
+    margin-top: 15px;
+    padding: 14px;
+    line-height: 1.7;
+    background: rgba(34, 211, 238, 0.08);
+    border-left: 3px solid #22d3ee;
+    border-radius: 6px;
+}
+
+@media (max-width: 700px) {
+    #competencias {
+        padding: 45px 15px;
+    }
+
+    #competencias h2 {
+        font-size: 1.8rem;
+    }
+
+    .competencias-container {
+        grid-template-columns: 1fr;
+    }
+}

@@ -114,3 +114,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
+/* =====================================
+   INTERACCIÓN: COMPETENCIAS ADQUIRIDAS
+===================================== */
+
+document.querySelectorAll(".btn-competencia").forEach((boton) => {
+    boton.addEventListener("click", () => {
+        const idDetalle = boton.dataset.detalle;
+        const detalle = document.getElementById(idDetalle);
+
+        if (!detalle) return;
+
+        const estaAbierto = boton.getAttribute("aria-expanded") === "true";
+
+        detalle.hidden = estaAbierto;
+        boton.setAttribute("aria-expanded", String(!estaAbierto));
+        boton.textContent = estaAbierto ? "Ver detalles" : "Ocultar detalles";
+    });
+});
