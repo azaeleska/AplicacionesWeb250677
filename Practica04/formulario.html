@@ -4,8 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MecaGest: Formulario de Registro de Nuevos Usuarios - 20854</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="assets/styles/styles.css">
+    <script src="js/script.js"></script>
 </head>
 <body>
+    <!-- Barra de navegación -->
+    <nav class="navbar">
+        <span class="marca">Meca<span>Gest</span></span>
+        <span class="navbar-texto">Registro de usuarios</span>
+    </nav>
+
     <header>
         <h1>MecaGest</h1>
         <h2>Registro de Nuevos Usuarios</h2>
@@ -13,9 +23,20 @@
     </header>
 
     <main>
-        <!-- Formulario Principal de Registro -->
-        <form action="" method="POST">
-            <fieldset>
+        <!-- Formulario Principal de Registro (en pasos tipo wizard) -->
+        <form action="" method="POST" class="wizard" id="formRegistro" novalidate>
+
+            <!-- Barra wizard: un círculo por cada paso -->
+            <ol class="wizard-pasos">
+                <li class="paso activo"><span class="paso-numero">1</span><span class="paso-nombre">Personales</span></li>
+                <li class="paso"><span class="paso-numero">2</span><span class="paso-nombre">Contacto</span></li>
+                <li class="paso"><span class="paso-numero">3</span><span class="paso-nombre">Acceso</span></li>
+                <li class="paso"><span class="paso-numero">4</span><span class="paso-nombre">Ubicación</span></li>
+                <li class="paso"><span class="paso-numero">5</span><span class="paso-nombre">Confirmar</span></li>
+            </ol>
+
+            <!-- Paso 1 -->
+            <fieldset class="wizard-panel activo">
                 <legend>Datos Personales</legend>
 
                 <label for="tituloCortesia">Título de Cortesía:</label>
@@ -55,9 +76,8 @@
                 <br>
             </fieldset>
 
-            <br>
-
-            <fieldset>
+            <!-- Paso 2 -->
+            <fieldset class="wizard-panel">
                 <legend>Datos de Contacto</legend>
 
                 <label for="email">Correo Electrónico:</label>
@@ -74,9 +94,8 @@
                 <input type="time" id="horarioContactoFin" value="18:00">
             </fieldset>
 
-            <br>
-
-            <fieldset>
+            <!-- Paso 3 -->
+            <fieldset class="wizard-panel">
                 <legend>Datos de Acceso</legend>
 
                 <label for="usuario">Usuario:</label>
@@ -92,39 +111,69 @@
                 <br>
             </fieldset>
 
-            <br>
-
-            <fieldset>
+            <!-- Paso 4 -->
+            <fieldset class="wizard-panel">
                 <legend>Datos de Ubicación</legend>
 
-                <label for="direccion">Dirección:</label>
-                <input type="text" id="direccion" placeholder="Calle, Número, Colonia, Ciudad, Estado, Código Postal">
-                <br>
+                <p class="ayuda">Elige de las listas. Si tu lugar no aparece, elige "Otro" y escríbelo.</p>
 
                 <label for="pais">País:</label>
-                <input type="text" id="pais" placeholder="México">
+                <select id="pais">
+                    <option value="">Selecciona un país</option>
+                </select>
+                <input type="text" id="paisOtro" class="campo-otro" placeholder="Escribe tu país" hidden>
                 <br>
 
                 <label for="estado">Estado:</label>
-                <input type="text" id="estado" placeholder="Puebla">
+                <select id="estado" disabled>
+                    <option value="">Primero elige un país</option>
+                </select>
+                <input type="text" id="estadoOtro" class="campo-otro" placeholder="Escribe tu estado" hidden>
                 <br>
 
                 <label for="ciudad">Ciudad:</label>
-                <input type="text" id="ciudad" placeholder="Tenango">
+                <select id="ciudad" disabled>
+                    <option value="">Primero elige un estado</option>
+                </select>
+                <input type="text" id="ciudadOtro" class="campo-otro" placeholder="Escribe tu ciudad" hidden>
                 <br>
 
                 <label for="codigoPostal">Código Postal:</label>
-                <input type="text" id="codigoPostal" placeholder="73160">
+                <input type="text" id="codigoPostal" placeholder="73080" maxlength="5" inputmode="numeric">
+                <br>
+
+                <label for="colonia">Colonia:</label>
+                <input type="text" id="colonia" placeholder="Centro">
+                <br>
+
+                <label for="direccion">Dirección:</label>
+                <input type="text" id="direccion" placeholder="Calle y número">
             </fieldset>
 
-            <br>
+            <!-- Paso 5 -->
+            <fieldset class="wizard-panel">
+                <legend>Confirmar Solicitud</legend>
 
-            <input type="checkbox" id="validado" required>
-            <label for="validado">Acepto los términos y condiciones del uso de la plataforma MecaGest.</label>
-            <br><br>
+                <p>Revisa que tus datos estén correctos antes de enviar:</p>
+                <ul class="resumen" id="resumen"></ul>
 
-            <input type="submit" value="Enviar Solicitud">
-            <input type="reset" value="Limpiar Formulario">
+                <div class="terminos">
+                    <input type="checkbox" id="validado" required>
+                    <label for="validado">Acepto los términos y condiciones del uso de la plataforma MecaGest.</label>
+                </div>
+
+                <!-- Aviso que muestra JavaScript al enviar -->
+                <div class="envio-ok" id="mensajeEnvio" hidden></div>
+
+                <input type="submit" value="Enviar Solicitud">
+                <input type="reset" value="Limpiar Formulario">
+            </fieldset>
+
+            <!-- Botones para moverse entre pasos -->
+            <div class="wizard-botones">
+                <button type="button" id="btnAnterior" class="btn-secundario">&larr; Anterior</button>
+                <button type="button" id="btnSiguiente">Siguiente &rarr;</button>
+            </div>
         </form>
 
         <br><hr><br>
@@ -143,51 +192,51 @@
                 <h4>Las citas programadas para el mes elegido son:</h4>
                 <br>
 
-                <table style="border: 1px solid black; border-collapse: collapse; width: 100%;">
+                <table>
                     <thead>
                         <tr>
-                            <th style="border: 1px solid black; padding: 8px;">No.</th>
-                            <th style="border: 1px solid black; padding: 8px;">Nombre</th>
-                            <th style="border: 1px solid black; padding: 8px;">Descripción</th>
-                            <th style="border: 1px solid black; padding: 8px;">Fecha Programada</th>
-                            <th style="border: 1px solid black; padding: 8px;">Estatus Actual</th>
+                            <th>No.</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Fecha Programada</th>
+                            <th>Estatus Actual</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="border: 1px solid black; padding: 8px;">1.</td>
-                            <td style="border: 1px solid black; padding: 8px;">Cita de entrega de unidad reparada con el cliente: Mauricio Mejía, Unidad: Volkswagen, Jetta 2020</td>
-                            <td style="border: 1px solid black; padding: 8px;">Se realizó un cambio de bujías, la unidad está lista para entrega.</td>
-                            <td style="border: 1px solid black; padding: 8px;">10 de Octubre de 2026</td>
-                            <td style="border: 1px solid black; padding: 8px;">Atendida</td>
+                            <td>1.</td>
+                            <td>Cita de entrega de unidad reparada con el cliente: Mauricio Mejía, Unidad: Volkswagen, Jetta 2020</td>
+                            <td>Se realizó un cambio de bujías, la unidad está lista para entrega.</td>
+                            <td>10 de Octubre de 2026</td>
+                            <td>Atendida</td>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid black; padding: 8px;">2.</td>
-                            <td style="border: 1px solid black; padding: 8px;">Cita de valoración con el cliente: Bertha Hdz Aranda, Unidad: Renault, Duster 2022</td>
-                            <td style="border: 1px solid black; padding: 8px;">El cliente solicita una revisión del cuerpo de aceleración de la unidad para posible mantenimiento correctivo.</td>
-                            <td style="border: 1px solid black; padding: 8px;">16 de Octubre de 2026</td>
-                            <td style="border: 1px solid black; padding: 8px;">Programada</td>
+                            <td>2.</td>
+                            <td>Cita de valoración con el cliente: Bertha Hdz Aranda, Unidad: Renault, Duster 2022</td>
+                            <td>El cliente solicita una revisión del cuerpo de aceleración de la unidad para posible mantenimiento correctivo.</td>
+                            <td>16 de Octubre de 2026</td>
+                            <td>Programada</td>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid black; padding: 8px;">3.</td>
-                            <td style="border: 1px solid black; padding: 8px;">Cita de valoración con el cliente: Mauricio Mejía, Unidad: Volkswagen, Jetta 2020</td>
-                            <td style="border: 1px solid black; padding: 8px;">A la unidad se le hicieron cambio de bujías, pero el cliente reporta un sonido extraño.</td>
-                            <td style="border: 1px solid black; padding: 8px;">17 de Octubre de 2026</td>
-                            <td style="border: 1px solid black; padding: 8px;">Programada</td>
+                            <td>3.</td>
+                            <td>Cita de valoración con el cliente: Mauricio Mejía, Unidad: Volkswagen, Jetta 2020</td>
+                            <td>A la unidad se le hicieron cambio de bujías, pero el cliente reporta un sonido extraño.</td>
+                            <td>17 de Octubre de 2026</td>
+                            <td>Programada</td>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid black; padding: 8px;">4.</td>
-                            <td style="border: 1px solid black; padding: 8px;">Cita de valoración con la cliente: Alejandra Romero, Unidad: Toyota, Hilux 2012</td>
-                            <td style="border: 1px solid black; padding: 8px;">El cliente solicita una revisión del cuerpo de aceleración de la unidad para posible mantenimiento correctivo.</td>
-                            <td style="border: 1px solid black; padding: 8px;">16 de Octubre de 2026</td>
-                            <td style="border: 1px solid black; padding: 8px;">Cancelada</td>
+                            <td>4.</td>
+                            <td>Cita de valoración con la cliente: Alejandra Romero, Unidad: Toyota, Hilux 2012</td>
+                            <td>El cliente solicita una revisión del cuerpo de aceleración de la unidad para posible mantenimiento correctivo.</td>
+                            <td>16 de Octubre de 2026</td>
+                            <td>Cancelada</td>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid black; padding: 8px;">5.</td>
-                            <td style="border: 1px solid black; padding: 8px;">Cita de valoración con la cliente: Alejandra Romero, Unidad: Toyota, Hilux 2012</td>
-                            <td style="border: 1px solid black; padding: 8px;">El cliente solicita una revisión del cuerpo de aceleración de la unidad para posible mantenimiento correctivo.</td>
-                            <td style="border: 1px solid black; padding: 8px;">20 de Octubre de 2026</td>
-                            <td style="border: 1px solid black; padding: 8px;">Reprogramada</td>
+                            <td>5.</td>
+                            <td>Cita de valoración con la cliente: Alejandra Romero, Unidad: Toyota, Hilux 2012</td>
+                            <td>El cliente solicita una revisión del cuerpo de aceleración de la unidad para posible mantenimiento correctivo.</td>
+                            <td>20 de Octubre de 2026</td>
+                            <td>Reprogramada</td>
                         </tr>
                     </tbody>
                 </table>
@@ -274,68 +323,66 @@
                 </select>
 
                 <label for="cantidadHerramienta">Cantidad:</label>
-                <input type="number" id="cantidadHerramienta" name="cantidad" style="width: 60px;">
+                <input type="number" id="cantidadHerramienta" name="cantidad">
 
                 <button type="button">Solicitar Herramienta</button>
 
                 <br><br>
 
                 <!-- TABLA DENTRO DEL FIELDSET -->
-                <h2 style="font-family: Arial, sans-serif; font-size: 1.3em; margin-bottom: 5px;"> Herramientas seleccionadas</h2>
-
                 <!-- SECCIÓN DE LA NUEVA TABLA CON EL TAMAÑO COMPACTO DE LA IMAGEN -->
-<h2 style="font-family: Arial, sans-serif; font-size: 1.3em;">MECAGest - Herramientas seleccionadas</h2>
+<h2>MECAGest - Herramientas seleccionadas</h2>
 
-<table style="border: 1px solid black; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 14px; margin-top: 10px;">
+<table>
     <thead>
         <tr>
-            <th colspan="5" style="border: 1px solid black; padding: 4px 10px; font-weight: bold; text-align: center;">
+            <th colspan="5">
                 Herramientas para la orden de servicio
             </th>
         </tr>
         <tr>
-            <th style="border: 1px solid black; padding: 4px 8px; text-align: left;">No.</th>
-            <th style="border: 1px solid black; padding: 4px 15px; text-align: center;">Herramienta</th>
-            <th style="border: 1px solid black; padding: 4px 15px; text-align: center;">Categoría</th>
-            <th style="border: 1px solid black; padding: 4px 8px; text-align: center;">Cantidad</th>
-            <th style="border: 1px solid black; padding: 4px 8px; text-align: center;">Unidad</th>
+            <th>No.</th>
+            <th>Herramienta</th>
+            <th>Categoría</th>
+            <th>Cantidad</th>
+            <th>Unidad</th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left; font-weight: bold;">1</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Llave combinada</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Herramienta manual</td>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left;">4</td>
-            <td style="border: 1px solid black; padding: 4px 8px; font-weight: bold;">Piezas</td>
+            <td>1</td>
+            <td>Llave combinada</td>
+            <td>Herramienta manual</td>
+            <td>4</td>
+            <td>Piezas</td>
         </tr>
         <tr>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left; font-weight: bold;">2</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Llave dinamométrica</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Herramienta especializada</td>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left;">2</td>
-            <td style="border: 1px solid black; padding: 4px 8px; font-weight: bold;">Piezas</td>
+            <td>2</td>
+            <td>Llave dinamométrica</td>
+            <td>Herramienta especializada</td>
+            <td>2</td>
+            <td>Piezas</td>
         </tr>
         <tr>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left; font-weight: bold;">3</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Extractor de poleas</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Herramienta especializada</td>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left;">1</td>
-            <td style="border: 1px solid black; padding: 4px 8px; font-weight: bold;">Juego</td>
+            <td>3</td>
+            <td>Extractor de poleas</td>
+            <td>Herramienta especializada</td>
+            <td>1</td>
+            <td>Juego</td>
         </tr>
         <tr>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left; font-weight: bold;">4</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Llave Torx</td>
-            <td style="border: 1px solid black; padding: 4px 15px; font-weight: bold;">Herramienta manual</td>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left;">3</td>
-            <td style="border: 1px solid black; padding: 4px 8px; font-weight: bold;">Juegos</td>
+            <td>4</td>
+            <td>Llave Torx</td>
+            <td>Herramienta manual</td>
+            <td>3</td>
+            <td>Juegos</td>
         </tr>
         <tr>
-            <td colspan="3" style="border: 1px solid black; padding: 4px 15px; text-align: center; font-weight: bold;">
+            <td colspan="3">
                 Total de unidades
             </td>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left;">10</td>
-            <td style="border: 1px solid black; padding: 4px 8px; text-align: left;">-</td>
+            <td>10</td>
+            <td>-</td>
         </tr>
     </tbody>
 </table>
