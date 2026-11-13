@@ -24,7 +24,7 @@
 
     <main>
         <!-- Formulario Principal de Registro (en pasos tipo wizard) -->
-        <form action="" method="POST" class="wizard" id="formRegistro">
+        <form action="" method="POST" class="wizard" id="formRegistro" novalidate>
 
             <!-- Barra wizard: un círculo por cada paso -->
             <ol class="wizard-pasos">
@@ -115,21 +115,27 @@
             <fieldset class="wizard-panel">
                 <legend>Datos de Ubicación</legend>
 
-                <p class="ayuda">Elige de la lista o escribe tus datos si no aparecen.</p>
+                <p class="ayuda">Elige de las listas. Si tu lugar no aparece, elige "Otro" y escríbelo.</p>
 
                 <label for="pais">País:</label>
-                <input type="text" id="pais" list="listaPaises" placeholder="México" autocomplete="off">
-                <datalist id="listaPaises"></datalist>
+                <select id="pais">
+                    <option value="">Selecciona un país</option>
+                </select>
+                <input type="text" id="paisOtro" class="campo-otro" placeholder="Escribe tu país" hidden>
                 <br>
 
                 <label for="estado">Estado:</label>
-                <input type="text" id="estado" list="listaEstados" placeholder="Puebla" autocomplete="off">
-                <datalist id="listaEstados"></datalist>
+                <select id="estado" disabled>
+                    <option value="">Primero elige un país</option>
+                </select>
+                <input type="text" id="estadoOtro" class="campo-otro" placeholder="Escribe tu estado" hidden>
                 <br>
 
                 <label for="ciudad">Ciudad:</label>
-                <input type="text" id="ciudad" list="listaCiudades" placeholder="Xicotepec" autocomplete="off">
-                <datalist id="listaCiudades"></datalist>
+                <select id="ciudad" disabled>
+                    <option value="">Primero elige un estado</option>
+                </select>
+                <input type="text" id="ciudadOtro" class="campo-otro" placeholder="Escribe tu ciudad" hidden>
                 <br>
 
                 <label for="codigoPostal">Código Postal:</label>
@@ -155,6 +161,9 @@
                     <input type="checkbox" id="validado" required>
                     <label for="validado">Acepto los términos y condiciones del uso de la plataforma MecaGest.</label>
                 </div>
+
+                <!-- Aviso que muestra JavaScript al enviar -->
+                <div class="envio-ok" id="mensajeEnvio" hidden></div>
 
                 <input type="submit" value="Enviar Solicitud">
                 <input type="reset" value="Limpiar Formulario">

@@ -104,9 +104,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Revisa que los campos obligatorios del paso actual estén bien
-    function pasoValido() {
-        const campos = paneles[pasoActual].querySelectorAll("input, select, textarea");
+    // Revisa que los campos obligatorios de un paso estén bien
+    // (si no le pasamos número, revisa el paso actual)
+    function pasoValido(numero = pasoActual) {
+        const campos = paneles[numero].querySelectorAll("input, select, textarea");
 
         for (const campo of campos) {
             // checkValidity() revisa required, type="email", etc.
@@ -173,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ["Nacimiento", campoFecha.value],
             ["Correo", document.getElementById("email").value],
             ["Usuario", document.getElementById("usuario").value],
-            ["Ciudad", document.getElementById("ciudad").value || "—"]
+            ["Ciudad", valorUbicacion("ciudad") || "—"]
         ];
 
         const lista = document.getElementById("resumen");
@@ -188,17 +189,48 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    /* ---------- Enviar la solicitud ----------
+       Live Server solo muestra archivos, no recibe datos por POST
+       (por eso salía un error al enviar). Mientras no tengamos un
+       servidor (PHP, por ejemplo), atrapamos el envío con JavaScript. */
+    const mensajeEnvio = document.getElementById("mensajeEnvio");
+
+    formulario.addEventListener("submit", function (evento) {
+        // preventDefault evita que la página se recargue y mande el POST
+        evento.preventDefault();
+
+        // Revisamos TODOS los pasos; si uno tiene error, lo mostramos
+        for (let i = 0; i < paneles.length; i++) {
+            if (i !== pasoActual) {
+                mostrarPaso(i); // primero lo hacemos visible
+            }
+            if (!pasoValido(i)) {
+                return; // nos quedamos en el paso con error
+            }
+        }
+
+        // Si todo está bien, mostramos el aviso de éxito
+        mostrarPaso(paneles.length - 1);
+        const nombre = document.getElementById("nombre").value;
+        mensajeEnvio.textContent = "¡Listo, " + nombre + "! Tu solicitud se envió correctamente.";
+        mensajeEnvio.hidden = false;
+        console.log("Solicitud enviada");
+    });
+
     // Al limpiar el formulario regresamos al paso 1
     formulario.addEventListener("reset", function () {
         mensaje.textContent = "";
         mensaje.className = "";
+        mensajeEnvio.hidden = true;
         mostrarPaso(0);
+        // Esperamos a que el navegador limpie los campos
+        setTimeout(reiniciarUbicacion, 0);
     });
 
     /* ---------- Funcionalidad 4: Selección de ubicación ----------
        Leemos el catálogo assets/data/domicilios.json y con él
-       llenamos las listas de País, Estado y Ciudad. El usuario
-       también puede escribir a mano si su dato no aparece. */
+       llenamos las listas desplegables de País, Estado y Ciudad.
+       Si el lugar no aparece, el usuario elige "Otro" y lo escribe. */
 
     const campoPais = document.getElementById("pais");
     const campoEstado = document.getElementById("estado");
@@ -206,57 +238,69 @@ document.addEventListener("DOMContentLoaded", function () {
     const campoCP = document.getElementById("codigoPostal");
     const campoColonia = document.getElementById("colonia");
 
+    // Valor especial de la opción "Otro"
+    const OTRO = "otro";
+
     // Aquí guardamos el catálogo cuando termine de cargar
     let catalogo = null;
 
-    // Llena un <datalist> con una lista de textos
-    function llenarLista(idLista, opciones) {
-        const lista = document.getElementById(idLista);
-        lista.innerHTML = ""; // primero la vaciamos
+    // Llena un <select>: primero un texto de ayuda, luego las
+    // opciones y al final "Otro (escribir)"
+    function llenarSelect(select, textoAyuda, opciones) {
+        select.innerHTML = ""; // primero lo vaciamos
+
+        const ayuda = document.createElement("option");
+        ayuda.value = "";
+        ayuda.textContent = textoAyuda;
+        select.append(ayuda);
+
         opciones.forEach(function (texto) {
             const opcion = document.createElement("option");
             opcion.value = texto;
-            lista.append(opcion);
+            opcion.textContent = texto;
+            select.append(opcion);
         });
+
+        const otro = document.createElement("option");
+        otro.value = OTRO;
+        otro.textContent = "Otro (escribir)";
+        select.append(otro);
+
+        select.disabled = false;
     }
 
-    // fetch pide el archivo; .json() convierte el texto en un objeto
-    fetch("assets/data/domicilios.json")
-        .then(function (respuesta) {
-            return respuesta.json();
-        })
-        .then(function (datos) {
-            catalogo = datos;
-            llenarLista("listaPaises", catalogo.paises);
-        })
-        .catch(function () {
-            // Si no carga (por ejemplo, abriendo el HTML sin Live Server),
-            // los campos siguen funcionando para escribir a mano
-            console.log("No se pudo cargar domicilios.json");
-        });
+    // Deja un <select> vacío y desactivado, con un texto de ayuda
+    function vaciarSelect(select, textoAyuda) {
+        select.innerHTML = "";
+        const ayuda = document.createElement("option");
+        ayuda.value = "";
+        ayuda.textContent = textoAyuda;
+        select.append(ayuda);
+        select.disabled = true;
+        mostrarOtro(select);
+    }
 
-    // Al elegir país: si es México, ofrecemos los 32 estados
-    campoPais.addEventListener("change", function () {
-        if (!catalogo) return;
-
-        if (campoPais.value === "México") {
-            llenarLista("listaEstados", catalogo.estadosMexico);
-        } else {
-            llenarLista("listaEstados", []);
+    // Muestra la caja de texto "Otro" solo si se eligió esa opción.
+    // La caja tiene el mismo id que el select + "Otro" (ej. paisOtro)
+    function mostrarOtro(select) {
+        const cajaOtro = document.getElementById(select.id + "Otro");
+        cajaOtro.hidden = select.value !== OTRO;
+        if (cajaOtro.hidden) {
+            cajaOtro.value = "";
         }
+    }
 
-        // Si cambió el país, lo que había abajo ya no sirve
-        campoEstado.value = "";
-        campoCiudad.value = "";
-        campoCP.value = "";
-        campoColonia.value = "";
-        llenarLista("listaCiudades", []);
-    });
+    // Regresa lo que eligió el usuario (o lo que escribió en "Otro")
+    function valorUbicacion(id) {
+        const select = document.getElementById(id);
+        if (select.value === OTRO) {
+            return document.getElementById(id + "Otro").value;
+        }
+        return select.value;
+    }
 
-    // Al elegir estado: ofrecemos solo las ciudades de ese estado
-    campoEstado.addEventListener("change", function () {
-        if (!catalogo) return;
-
+    // Llena la lista de ciudades según el estado elegido
+    function cargarCiudades() {
         // filter se queda solo con los ejemplos del estado elegido
         const deEseEstado = catalogo.ejemplosMexico.filter(function (lugar) {
             return lugar.estado === campoEstado.value;
@@ -267,14 +311,79 @@ document.addEventListener("DOMContentLoaded", function () {
             return lugar.ciudad;
         });
 
-        llenarLista("listaCiudades", ciudades);
-        campoCiudad.value = "";
+        llenarSelect(campoCiudad, "Selecciona una ciudad", ciudades);
+    }
+
+    // Deja la ubicación como al inicio
+    function reiniciarUbicacion() {
+        if (catalogo) {
+            llenarSelect(campoPais, "Selecciona un país", catalogo.paises);
+        }
+        mostrarOtro(campoPais);
+        vaciarSelect(campoEstado, "Primero elige un país");
+        vaciarSelect(campoCiudad, "Primero elige un estado");
+    }
+
+    // fetch pide el archivo; .json() convierte el texto en un objeto
+    fetch("assets/data/domicilios.json")
+        .then(function (respuesta) {
+            return respuesta.json();
+        })
+        .then(function (datos) {
+            catalogo = datos;
+            llenarSelect(campoPais, "Selecciona un país", catalogo.paises);
+        })
+        .catch(function () {
+            // Si no carga (por ejemplo, abriendo el HTML sin Live Server)
+            // dejamos solo "Otro" para que pueda escribir a mano
+            console.log("No se pudo cargar domicilios.json");
+            llenarSelect(campoPais, "Selecciona un país", []);
+        });
+
+    // Al elegir país: si es México, ofrecemos los 32 estados
+    campoPais.addEventListener("change", function () {
+        mostrarOtro(campoPais);
         campoCP.value = "";
         campoColonia.value = "";
+        vaciarSelect(campoCiudad, "Primero elige un estado");
+
+        if (campoPais.value === "") {
+            vaciarSelect(campoEstado, "Primero elige un país");
+        } else if (campoPais.value === "México" && catalogo) {
+            llenarSelect(campoEstado, "Selecciona un estado", catalogo.estadosMexico);
+        } else {
+            // Para otros países no tenemos estados: va directo a "Otro"
+            llenarSelect(campoEstado, "Selecciona un estado", []);
+            campoEstado.value = OTRO;
+            mostrarOtro(campoEstado);
+            campoCiudad.disabled = false;
+            llenarSelect(campoCiudad, "Selecciona una ciudad", []);
+            campoCiudad.value = OTRO;
+            mostrarOtro(campoCiudad);
+        }
+    });
+
+    // Al elegir estado: ofrecemos solo las ciudades de ese estado
+    campoEstado.addEventListener("change", function () {
+        mostrarOtro(campoEstado);
+        campoCP.value = "";
+        campoColonia.value = "";
+
+        if (campoEstado.value === "") {
+            vaciarSelect(campoCiudad, "Primero elige un estado");
+        } else if (campoEstado.value === OTRO || !catalogo) {
+            llenarSelect(campoCiudad, "Selecciona una ciudad", []);
+            campoCiudad.value = OTRO;
+            mostrarOtro(campoCiudad);
+        } else {
+            cargarCiudades();
+            mostrarOtro(campoCiudad);
+        }
     });
 
     // Al elegir ciudad: llenamos solos el código postal y la colonia
     campoCiudad.addEventListener("change", function () {
+        mostrarOtro(campoCiudad);
         if (!catalogo) return;
 
         // find regresa el primer lugar que coincida (o undefined)
@@ -288,7 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Al revés: si escribe un código postal conocido, llenamos lo demás
+    // Al revés: si escribe un código postal conocido, elegimos todo solo
     campoCP.addEventListener("input", function () {
         if (!catalogo || campoCP.value.length !== 5) return;
 
@@ -298,10 +407,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (lugar) {
             campoPais.value = "México";
+            llenarSelect(campoEstado, "Selecciona un estado", catalogo.estadosMexico);
             campoEstado.value = lugar.estado;
+            cargarCiudades();
             campoCiudad.value = lugar.ciudad;
             campoColonia.value = lugar.colonia;
-            llenarLista("listaEstados", catalogo.estadosMexico);
+            mostrarOtro(campoPais);
+            mostrarOtro(campoEstado);
+            mostrarOtro(campoCiudad);
         }
     });
 
